@@ -48,6 +48,7 @@ void setup() {
   analogWrite(BLUE, 0);
 #endif
 
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   board.setWatchdog(INTERVAL_MILLIS); // set watchdog timeout in milliseconds (max 8000)
 }
 
@@ -125,8 +126,8 @@ void loop() {
       digitalWrite(LM35_VCC, LOW);
 #endif
 
-#if ENABLE_RF_CONTROL
       delay(500);
+#if ENABLE_RF_CONTROL
       digitalWrite(RF, LOW);
 #endif
 
@@ -144,4 +145,6 @@ void loop() {
 
     f_wdt = false;
   }
+
+  sleep_mode();
 }

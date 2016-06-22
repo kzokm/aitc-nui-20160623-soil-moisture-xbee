@@ -1,12 +1,15 @@
 #include <TheAirBoard.h>
 
 #define MOISTURE_PIN A4
+#define MOISTURE_VCC 10
+#define MOISTURE_GND 11
+
 #define LM35_PIN A5
 #define LM35_VCC 12
 #define LM35_GND 13
 
 #define INTERVAL_MILLIS 5000
-#define TIMEOUT_INTERVAL 1
+#define TIMEOUT_INTERVAL ((12 * 5) - 1) // 5min
 
 TheAirBoard board;
 volatile boolean f_wdt = true;
@@ -18,12 +21,18 @@ long blinkColor = 0;
 void setup() {
   Serial.begin(57600);
 
-  pinMode(LM35_GND, OUTPUT);
-  pinMode(LM35_VCC, OUTPUT);
-  digitalWrite(LM35_GND, LOW);
-  digitalWrite(LM35_VCC, HIGH);
+  pinMode(MOISTURE_GND, OUTPUT);
+  digitalWrite(MOISTURE_GND, LOW);
+  pinMode(MOISTURE_VCC, OUTPUT);
+  digitalWrite(MOISTURE_VCC, LOW);
 
-pinMode(RF, OUTPUT);
+  pinMode(LM35_GND, OUTPUT);
+  digitalWrite(LM35_GND, LOW);
+  pinMode(LM35_VCC, OUTPUT);
+  digitalWrite(LM35_VCC, LOW);
+
+
+  pinMode(RF, OUTPUT);
   digitalWrite(RF, HIGH);
   analogWrite(BLUE, 1);
   delay(5000); // allow time to launch programming, before a possible wireless module power down
@@ -43,6 +52,9 @@ void loop() {
       const char *status;
 
       digitalWrite(RF, HIGH);
+      digitalWrite(MOISTURE_VCC, HIGH);
+      digitalWrite(MOISTURE_PIN, HIGH); // pull up
+      digitalWrite(LM35_VCC, HIGH);
       delay(INTERVAL_MILLIS);
 
       //
@@ -90,6 +102,10 @@ void loop() {
       Serial.print(",\"status\":\"");
       Serial.print(status);
       Serial.println("\"}}");
+
+      digitalWrite(MOISTURE_PIN, LOW);
+      digitalWrite(MOISTURE_VCC, LOW);
+      digitalWrite(LM35_VCC, LOW);
 
       delay(500);
       digitalWrite(RF, LOW);

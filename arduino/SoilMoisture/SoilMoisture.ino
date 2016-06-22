@@ -1,12 +1,12 @@
 #include <TheAirBoard.h>
 
 #define MOISTURE_PIN A4
-#define MOISTURE_VCC 10
-#define MOISTURE_GND 11
+//#define MOISTURE_VCC 10
+//#define MOISTURE_GND 11
 
 #define LM35_PIN A5
-#define LM35_VCC 12
-#define LM35_GND 13
+//#define LM35_VCC 12
+//#define LM35_GND 13
 
 TheAirBoard board;
 volatile boolean f_wdt = true;
@@ -22,15 +22,23 @@ long blinkColor = 0;
 void setup() {
   Serial.begin(57600);
 
+#ifdef MOISTURE_GND
   pinMode(MOISTURE_GND, OUTPUT);
   digitalWrite(MOISTURE_GND, LOW);
+#endif
+#ifdef MOISTURE_VCC
   pinMode(MOISTURE_VCC, OUTPUT);
   digitalWrite(MOISTURE_VCC, LOW);
+#endif
 
+#ifdef LM35_GND
   pinMode(LM35_GND, OUTPUT);
   digitalWrite(LM35_GND, LOW);
+#endif
+#ifdef LM35_VCC
   pinMode(LM35_VCC, OUTPUT);
   digitalWrite(LM35_VCC, LOW);
+#endif
 
 #if ENABLE_RF_CONTROL
   pinMode(RF, OUTPUT);
@@ -56,9 +64,12 @@ void loop() {
 #if ENABLE_RF_CONTROL
       digitalWrite(RF, HIGH);
 #endif
+#ifdef MOISTURE_VCC
       digitalWrite(MOISTURE_VCC, HIGH);
-      digitalWrite(MOISTURE_PIN, HIGH); // pull up
+#endif
+#ifdef LM35_VCC
       digitalWrite(LM35_VCC, HIGH);
+#endif
       delay(INTERVAL_MILLIS);
 
       //
@@ -107,9 +118,12 @@ void loop() {
       Serial.print(status);
       Serial.println("\"}}");
 
-      digitalWrite(MOISTURE_PIN, LOW);
+#ifdef MOISTURE_VCC
       digitalWrite(MOISTURE_VCC, LOW);
+#endif
+#ifdef LM35_VCC
       digitalWrite(LM35_VCC, LOW);
+#endif
 
 #if ENABLE_RF_CONTROL
       delay(500);

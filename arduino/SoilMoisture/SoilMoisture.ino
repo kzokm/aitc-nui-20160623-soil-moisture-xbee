@@ -1,20 +1,34 @@
 #include <TheAirBoard.h>
+;
 
 #define MOISTURE_PIN A4
-//#define MOISTURE_VCC 10
+#define MOISTURE_VCC 10
 //#define MOISTURE_GND 11
 
 #define LM35_PIN A5
 //#define LM35_VCC 12
 //#define LM35_GND 13
 
+#define ENABLE_RF_CONTROL true
+#define DELAY_FOR_SETUP 5000
+
+#define DELAY_AFTER_WAKEUP 10000
+#define DELAY_BEFORE_SLEEP 500
+#define DELAY_FOR_BLINK 5
+
+#define INTERVAL_MILLIS 8000 // set watchdog timeout in milliseconds (max 8000)
+#define TIMEOUT_INTERVAL (((10 * 60 * 1000L) - \
+                           (DELAY_AFTER_WAKEUP + DELAY_BEFORE_SLEEP)) / \
+                          (INTERVAL_MILLIS - DELAY_FOR_BLINK))
+
+//#define ENABLE_RF_CONTROL false
+//#define INTERVAL_MILLIS 1000
+//#define TIMEOUT_INTERVAL 0
+
+
 TheAirBoard board;
 volatile boolean f_wdt = true;
 int timeout = 0;
-
-#define INTERVAL_MILLIS 5000
-#define TIMEOUT_INTERVAL ((12 * 5) - 1) // 5min
-#define ENABLE_RF_CONTROL true
 
 long blinkColor = 0;
 #define RGB(r,g,b) (((long)(r) << 16) + ((g) << 8) + (b))
@@ -44,12 +58,12 @@ void setup() {
   pinMode(RF, OUTPUT);
   digitalWrite(RF, HIGH);
   analogWrite(BLUE, 1);
-  delay(5000); // allow time to launch programming, before a possible wireless module power down
+  delay(DELAY_FOR_SETUP); // allow time to launch programming, before a possible wireless module power down
   analogWrite(BLUE, 0);
 #endif
 
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  board.setWatchdog(INTERVAL_MILLIS); // set watchdog timeout in milliseconds (max 8000)
+  board.setWatchdog(INTERVAL_MILLIS);
 }
 
 
@@ -71,7 +85,7 @@ void loop() {
 #ifdef LM35_VCC
       digitalWrite(LM35_VCC, HIGH);
 #endif
-      delay(INTERVAL_MILLIS);
+      delay(DELAY_AFTER_WAKEUP);
 
       //
       // DFRobot SEN0014: Moisture Sensor
@@ -126,7 +140,7 @@ void loop() {
       digitalWrite(LM35_VCC, LOW);
 #endif
 
-      delay(500);
+      delay(DELAY_BEFORE_SLEEP);
 #if ENABLE_RF_CONTROL
       digitalWrite(RF, LOW);
 #endif
@@ -138,7 +152,7 @@ void loop() {
     analogWrite(RED, (blinkColor >> 16) & 0xff);
     analogWrite(GREEN, (blinkColor >> 8) & 0xff);
     analogWrite(BLUE, blinkColor & 0xff);
-    delay(10);
+    delay(DELAY_FOR_BLINK);
     analogWrite(RED, 0);
     analogWrite(GREEN, 0);
     analogWrite(BLUE, 0);

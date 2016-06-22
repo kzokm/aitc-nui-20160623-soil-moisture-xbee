@@ -15,6 +15,7 @@
   "dependencies": {
     "date-utils": "^1.2.21",
     "plotly": "^1.0.6",
-    "serialport": "^3.1.2"
+    "serialport": "^3.1.2",
+    "xbee-api": "^0.4.3"
   }
 }

@@ -8,12 +8,13 @@
 #define LM35_VCC 12
 #define LM35_GND 13
 
-#define INTERVAL_MILLIS 5000
-#define TIMEOUT_INTERVAL ((12 * 5) - 1) // 5min
-
 TheAirBoard board;
 volatile boolean f_wdt = true;
 int timeout = 0;
+
+#define INTERVAL_MILLIS 5000
+#define TIMEOUT_INTERVAL ((12 * 5) - 1) // 5min
+#define ENABLE_RF_CONTROL true
 
 long blinkColor = 0;
 #define RGB(r,g,b) (((long)(r) << 16) + ((g) << 8) + (b))
@@ -31,12 +32,13 @@ void setup() {
   pinMode(LM35_VCC, OUTPUT);
   digitalWrite(LM35_VCC, LOW);
 
-
+#if ENABLE_RF_CONTROL
   pinMode(RF, OUTPUT);
   digitalWrite(RF, HIGH);
   analogWrite(BLUE, 1);
   delay(5000); // allow time to launch programming, before a possible wireless module power down
   analogWrite(BLUE, 0);
+#endif
 
   board.setWatchdog(INTERVAL_MILLIS); // set watchdog timeout in milliseconds (max 8000)
 }
@@ -51,7 +53,9 @@ void loop() {
     if (--timeout <= 0) {
       const char *status;
 
+#if ENABLE_RF_CONTROL
       digitalWrite(RF, HIGH);
+#endif
       digitalWrite(MOISTURE_VCC, HIGH);
       digitalWrite(MOISTURE_PIN, HIGH); // pull up
       digitalWrite(LM35_VCC, HIGH);
@@ -107,8 +111,10 @@ void loop() {
       digitalWrite(MOISTURE_VCC, LOW);
       digitalWrite(LM35_VCC, LOW);
 
+#if ENABLE_RF_CONTROL
       delay(500);
       digitalWrite(RF, LOW);
+#endif
 
       timeout = TIMEOUT_INTERVAL;
     }

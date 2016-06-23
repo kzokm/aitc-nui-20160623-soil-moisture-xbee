@@ -2,7 +2,7 @@ require 'date-utils'
 
 XBEE_API_MODE = true
 XBEE_TARGET_ADDRESS = 'a258'
-SERIAL_PORT = 'COM10'
+SERIAL_PORT = process.env.SERIAL_PORT
 
 XBeeAPI = require 'xbee-api'
 XBee = XBeeAPI.constants
@@ -112,7 +112,7 @@ plotly.plot init_data, graph_options, (err, msg)->
     parseReceivedData buffer
 
   xbee.on 'frame_object', (frame)->
-    #console.log 'frame>', frame
+    console.log 'frame>', frame
     if frame.type == XBee.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET
       if frame.remote16 == XBEE_TARGET_ADDRESS
         prepareReceivedData frame.data
